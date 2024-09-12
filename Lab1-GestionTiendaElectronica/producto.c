@@ -129,7 +129,7 @@ void eliminar_producto(Producto** productos, int* cantidad_productos_actual, int
 
     //y que el ultimo puntero de la lista apunte a un nuevo producto vacio
     Producto producto;
-    *(productos+*cantidad_productos_actual) = &producto;
+    *(*productos+*cantidad_productos_actual-1) = producto;
 
     --(*cantidad_productos_actual);
 }
