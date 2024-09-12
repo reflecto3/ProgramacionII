@@ -18,9 +18,12 @@ La lista debe contener al menos 10 productos iniciales.
 y ejecutarlas según su elección.
 */
 
+<<<<<<< HEAD
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+=======
+>>>>>>> 0a1eb9e (version del desktop de la carpeta)
 #include "producto.h"
 
 int main() {
@@ -56,6 +59,7 @@ int main() {
         }
         getchar(); //consumir el salto de linea
 
+<<<<<<< HEAD
         switch (eleccion) {
             case 1:
                 char nombre[50];
@@ -91,13 +95,64 @@ int main() {
                 actualizar_producto(&productos, &cantidad_productos_actual, nombre, id, cantidad_en_stock, precio)
                 break;
             case 3:
+=======
+        Producto producto; //para almacenar datos de producto a incluir o actualizado
+        int longitud_nombre; //longitud del nombre de producto una vez establiecido
+
+        switch (eleccion) {
+            case 1:
+                printf("Nombre del producto: ");
+                fgets(producto.nombre, sizeof(producto.nombre), stdin);
+                if ((longitud_nombre=strlen(producto.nombre)) > 0 && producto.nombre[longitud_nombre-1] == '\n') {
+                    producto.nombre[longitud_nombre-1] = '\0';
+                }
+                printf("Id: ");
+                scanf("%d", &producto.id);
+                printf("Cantidad en stock: ");
+                scanf("%d", &producto.cantidad_en_stock);
+                printf("Precio: ");
+                scanf("%f", &producto.precio);
+
+                agregar_producto(&productos, &capacidad, &cantidad_productos_actual, producto);
+                break;
+            case 2:
+                printf("ID del producto a actualizar: ");
+                scanf("%d", &producto.id);
+                getchar();
+                printf("Nombre del producto: ");
+                fgets(producto.nombre, sizeof(producto.nombre), stdin);
+                if ((longitud_nombre=strlen(producto.nombre)) > 0 && producto.nombre[longitud_nombre-1] == '\n') {
+                    producto.nombre[longitud_nombre-1] = '\0';
+                }
+
+                printf("Cantidad en stock: ");
+                scanf("%d", &producto.cantidad_en_stock);
+                printf("Precio: ");
+                scanf("%f", &producto.precio);
+
+                actualizar_producto(&productos, &cantidad_productos_actual, producto);
+                break;
+            case 3:
+                printf("ID del producto a eliminar: ");
+                scanf("%d", &producto.id);
+                eliminar_producto(&productos, &cantidad_productos_actual, producto.id);
+>>>>>>> 0a1eb9e (version del desktop de la carpeta)
                 break;
             case 4:
                 imprimir_productos(&productos, &cantidad_productos_actual);
                 break;
             case 5:
+<<<<<<< HEAD
                 break;
             case 6:
+=======
+                int cantidad_vendida;
+                printf("ID del producto vendido: ");
+                scanf("%d", &producto.id);
+                printf("Cantidad vendida: ");
+                scanf("%d", &cantidad_vendida);
+                realizar_venta(&productos, &cantidad_productos_actual, producto.id, cantidad_vendida);
+>>>>>>> 0a1eb9e (version del desktop de la carpeta)
                 break;
         }
         
