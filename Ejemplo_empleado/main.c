@@ -4,6 +4,9 @@
 void show_menu(Employee **employees, int *numEmployees, int *actualCapacity) {
     int option = -1;
 
+    //posible empleado a agregar, o simplemente la estructura para guardar datos
+    Employee employee;
+
     do {
         printf("\nMenu de empleados");
         printf("\n1. Agregar empleado");
@@ -18,25 +21,26 @@ void show_menu(Employee **employees, int *numEmployees, int *actualCapacity) {
         switch (option)
         {
         case 1:
-            /* code */
-            addEmployee(employees, numEmployees, actualCapacity);
+            askForNameNumberAndOrSalary(&employee, true, true, true);
+            addEmployee(employee, employees, numEmployees, actualCapacity);
             break;
         case 2:
-            /* code */
-            viewEmployees(employees, *numEmployees);
+            viewEmployees(*employees, *numEmployees);
             break;
         case 3:
-            /* code */
-            searchAndShowEmployee(employees, *numEmployees);
+            askForNameNumberAndOrSalary(&employee, false, true, false);
+            searchAndShowEmployee(*employees, employee.num_employee, *numEmployees);
             break;
         case 4:
-            modifyEmployee(employees, *numEmployees);
+            askForNameNumberAndOrSalary(&employee, false, true, false);
+            askForNameNumberAndOrSalary(&employee, true, false, true);
+            modifyEmployee(employee, *employees, *numEmployees);
             break;
         case 5:
-            deleteEmployee(employees, numEmployees);
+            askForNameNumberAndOrSalary(&employee, false, true, false);
+            deleteEmployee(*employees, employee.num_employee, numEmployees);
             break;
         case 6:
-            /* code */
             printf("Saliendo del programa\n");
             break;
         
@@ -47,7 +51,6 @@ void show_menu(Employee **employees, int *numEmployees, int *actualCapacity) {
     } while (option != 6);
 }
 
-// ToDo: revisar
 int main() {
     Employee *employees;
 
@@ -55,9 +58,15 @@ int main() {
     int actualCapacity = INITIAL_CAPACITY;
     int numEmployees = 0;
 
-    show_menu(&employees, &numEmployees, &actualCapacity);
-    freeEmployees(&employees);
+    getFromFile("empleados.csv", &employees, &numEmployees, &actualCapacity);
 
+    viewEmployees(employees, numEmployees);
+    printAvgSalary(employees, numEmployees);
+    printMaxMinSalaries(employees, numEmployees);
+
+
+    // show_menu(&employees, &numEmployees, &actualCapacity);
+    freeEmployees(employees);
 
     return 0;
 }

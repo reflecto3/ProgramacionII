@@ -7,8 +7,8 @@
 #define STR(s) #s
 
 #define MAX_EMPLOYEE 100
-#define MAX_NAME 20
-#define INITIAL_CAPACITY 5
+#define MAX_NAME 30
+#define INITIAL_CAPACITY 50
 
 typedef struct {
 
@@ -19,17 +19,21 @@ typedef struct {
 } Employee;
 
 
-void addEmployee(Employee **employees, int *numEmployees, int *actualCapacity);
-void viewEmployees(Employee **employees, int numEmployees);
-void searchAndShowEmployee(Employee **employees, int numEmployees);
+void addEmployee(Employee employee, Employee **employees, int *numEmployees, int *actualCapacity);
+void viewEmployees(Employee *employees, int numEmployees);
+void searchAndShowEmployee(Employee *employees, int numToShow, int numEmployees);
 void initializeEmployees(Employee **employees);
-void checkMemAlloc(Employee **employees);
-bool isValidEmployee(Employee** employees, Employee employee, int numEmployees, bool checkRepeated);
+void checkMemAlloc(Employee *employees);
+bool isValidEmployee(Employee* employees, Employee employee, int numEmployees, bool checkRepeated);
 void checkCapacity(Employee** employees, int numEmployees, int* actualCapacity);
 void showEmployee(Employee employee);
-void modifyEmployee(Employee **employees, int numEmployees);
-int indexSearchEmployee(Employee **employees, int numEmployeeSearched, int numEmployees);
-void deleteEmployee(Employee **employees, int *numEmployees);
-void freeEmployees(Employee** employees);
+void modifyEmployee(Employee modified, Employee *employees, int numEmployees);
+int indexSearchEmployee(Employee *employees, int numEmployeeSearched, int numEmployees);
+void deleteEmployee(Employee *employees, int numToDelete, int *numEmployees);
+void freeEmployees(Employee* employees);
+void askForNameNumberAndOrSalary(Employee *employee, bool name, bool number, bool salary);
+void getFromFile(const char* filename, Employee** employees, int *numEmployees, int *actualCapacity);
+void printAvgSalary(Employee* employees, int numEmployees);
+void printMaxMinSalaries(Employee* employees, int numEmployees);
 
 #endif
