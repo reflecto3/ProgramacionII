@@ -51,22 +51,23 @@ void show_menu(Employee **employees, int *numEmployees, int *actualCapacity) {
     } while (option != 6);
 }
 
-int main() {
-    Employee *employees;
+int main(int argc, char* argv[]) {
+    //Matriz de empleados
+    if (argc < 2) {
+        printf("Uso: %s archivo_con_empleados.csv");
+        return 1;
+    }
 
-    initializeEmployees(&employees);
-    int actualCapacity = INITIAL_CAPACITY;
-    int numEmployees = 0;
 
-    getFromFile("empleados.csv", &employees, &numEmployees, &actualCapacity);
+    Employee** departments = getFromCSV(argv[1]);
 
-    viewEmployees(employees, numEmployees);
-    printAvgSalary(employees, numEmployees);
-    printMaxMinSalaries(employees, numEmployees);
+    // viewEmployees(employees, numEmployees);
+    // printAvgSalary(employees, numEmployees);
+    // printMaxMinSalaries(employees, numEmployees);
 
 
     // show_menu(&employees, &numEmployees, &actualCapacity);
-    freeEmployees(employees);
+    freeDepartments(departments, numDepartments);
 
     return 0;
 }

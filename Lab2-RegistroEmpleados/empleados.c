@@ -5,13 +5,24 @@
 #include "empleados.h"
 
 void initializeEmployees(Employee **employees) {
-    *employees = (Employee*) calloc(INITIAL_CAPACITY, sizeof(Employee));
+    *employees = (Employee*) calloc(INITIAL_CAPACITY_EMP, sizeof(Employee));
 
     checkMemAlloc(*employees);
 }
 
-void checkMemAlloc(Employee* employees) {
-    if (employees == NULL) {
+void initializeDepartments(Employee ***departmentsPTR, int numDepartments) {
+    *departmentsPTR = (Employee**) malloc(numDepartments * sizeof(Employee*));
+
+    checkMemAlloc(*departmentsPTR);
+
+    for (int index = 0; index < numDepartments; ++index) {
+        initializeEmployees((*departmentsPTR)+index);
+    }
+
+}
+
+void checkMemAlloc(void* alloc) {
+    if (alloc == NULL) {
     printf("Error al asignar memoria.");
     }
 }
@@ -142,6 +153,14 @@ void freeEmployees(Employee* employees) {
     free(employees);
 }
 
+void freeDepartments(Employee** departments, int numDepartments) {
+    for (int index = 0; index < numDepartments; ++index) {
+        freeEmployees(departments[index]);
+    }
+    
+    free(departments);
+}
+
 void askForNameNumberAndOrSalary(Employee *employee, bool name, bool number, bool salary) {
 
     if (name) {
@@ -159,16 +178,55 @@ void askForNameNumberAndOrSalary(Employee *employee, bool name, bool number, boo
     }
 }
 
-void getFromFile(const char* filename, Employee** employees, int *numEmployees, int *actualCapacity) {
+Employee** getFromCSV(const char* filename) {
+
     FILE* file = fopen(filename, "r");
+
+    Employee** departments;
+
+    char first_line[MAX_LINE_DEPTS];
+
+    fgets(first_line, MAX_LINE_DEPTS, file);
+
+    int numDepartments = 1;
+
+    for (int index = 0; index < strlen(first_line); ++index) {
+        if (first_line[index] == ',') ++numDepartments;
+    }
+
+    DepartmentData deptData[numDepartments];
+
+    char* token = strtok(first_line, ",\n");
+
+    for (int index = 0; index < numDepartments; ++index) {
+        if (token == NULL) printf("ERROR TOKEN");
+        deptData[index].name = token;
+        deptData[index].capacity = INITIAL_CAPACITY_EMP;
+        deptData[index].numEmployees = 0;
+        deptData[index].deptNum = index;
+
+        token = strtok( NULL , ",\n");
+    }
+
+    initializeDepartments(&departments, numDepartments);
 
     Employee employee;
 
-    while (fscanf(file, "%[^,],%d,%f\n", employee.name, &employee.num_employee, &employee.salary) == 3) {
-        addEmployee(employee, employees, numEmployees, actualCapacity);
+    while (fscanf(file, "%[^,],%d,%f,%s", employee.name, &employee.num_employee, &employee.salary, &employee.dept) == 4) {
+        int deptNum = -1;
+        for (int index = 0; index < numDepartments; ++index) {
+            if (strcmp(employee.dept, deptData[index].name)) {
+                deptNum = index;
+                break;
+            }
+        }
+        
+        addEmployee(employee, departments+deptNum, &deptData[deptNum].numEmployees, &deptData[deptNum].capacity);
     }
 
     fclose(file);
+
+    return departments;
 }
 
 void printAvgSalary(Employee* employees, int numEmployees) {
