@@ -13,7 +13,7 @@ void initializeEmployees(Employee **employees) {
 void initializeDepartments(Employee ***departmentsPTR, int numDepartments) {
     *departmentsPTR = (Employee**) malloc(numDepartments * sizeof(Employee*));
 
-    checkMemAlloc(*departmentsPTR);
+    checkMemAllocDept(*departmentsPTR);
 
     for (int index = 0; index < numDepartments; ++index) {
         initializeEmployees((*departmentsPTR)+index);
@@ -21,7 +21,13 @@ void initializeDepartments(Employee ***departmentsPTR, int numDepartments) {
 
 }
 
-void checkMemAlloc(void* alloc) {
+void checkMemAlloc(Employee* alloc) {
+    if (alloc == NULL) {
+    printf("Error al asignar memoria.");
+    }
+}
+
+void checkMemAllocDept(Employee** alloc) {
     if (alloc == NULL) {
     printf("Error al asignar memoria.");
     }
@@ -65,27 +71,41 @@ void addEmployee(Employee employee, Employee **employees, int *numEmployees, int
 
     (*employees)[(*numEmployees)++] = employee;
 
+    // showEmployee((*employees)[*numEmployees]);
     // printf("\nEmpleado agregado.\n");
+}
+
+void printHeader() {
+    printf("Lista de empleados: \n");
+    printf("%-25s %-25s %-10s %-15s\n", "Nombre", "Numero de Empleado", "Salario", "Departamento");
+    printf("%-25s %-25s %-10s %-15s\n", "--------------------", "-------------------", "----------", "---------------");
 }
 
 void viewEmployees(Employee *employees, int numEmployees) {
     if ( numEmployees > 0 ) {
-        printf("Lista de empleados: \n");
-
-        //encabezado
-        printf("%-25s %-25s %-10s\n", "Nombre", "Numero de Empleado", "Salario");
-        printf("%-25s %-25s %-10s\n", "--------------------", "-------------------", "----------");
-
-        for (int index = 0; index < numEmployees; ++index) {
+        for (int index = 0; index < numEmployees && index<5; ++index) {
             showEmployee(employees[index]);
         }
     }
-    else
-        printf("No hay empleados registrados.");
+    else {
+        printf("No hay empleados registrados.\n");
+    }
+}
+
+void showAllEmployees(Employee** departments, DepartmentData* deptData, int numDepartments) {
+    printHeader();
+    for (int numDept = 0; numDept < numDepartments && numDept<5; ++numDept) {
+        viewEmployees(departments[numDept], deptData[numDept].numEmployees);
+    }
+}
+
+void viewDepartment(Employee** departments, DepartmentData* deptData, int numDept) {
+    printHeader();
+    viewEmployees(departments[numDept], deptData[numDept].numEmployees);
 }
 
 void showEmployee(Employee employee) {
-    printf("%-25s %-25d %-10.2f\n", employee.name, employee.num_employee, employee.salary);
+    printf("%-25s %-25d %-10.2f %-15s\n", employee.name, employee.num_employee, employee.salary, employee.dept);
 }
 
 int indexSearchEmployee(Employee *employees, int numEmployeeSearched, int numEmployees) {
@@ -161,7 +181,7 @@ void freeDepartments(Employee** departments, int numDepartments) {
     free(departments);
 }
 
-void askForNameNumberAndOrSalary(Employee *employee, bool name, bool number, bool salary) {
+void askForNameNumberAndOrSalaryAndOrDept(Employee *employee, bool name, bool number, bool salary, bool dept) {
 
     if (name) {
         printf("\nIngrese el nombre del empleado: ");
@@ -176,57 +196,61 @@ void askForNameNumberAndOrSalary(Employee *employee, bool name, bool number, boo
         printf("\nIngrese el salario del empleado: ");
         scanf("%f", &(*employee).salary);
     }
+    if (dept) {
+    printf("\nIngrese el departamento del empleado: ");
+    scanf("%" xSTR(MAX_NAME_DEPT) "[^\n]", (*employee).dept);
+    }
 }
 
-Employee** getFromCSV(const char* filename) {
+void getFromCSV(const char* filename, Employee*** departmentsPtr, DepartmentData** deptDataPtr, int* numDepartmentsPtr) {
 
     FILE* file = fopen(filename, "r");
 
-    Employee** departments;
-
-    char first_line[MAX_LINE_DEPTS];
+    char* first_line = (char*)calloc(MAX_LINE_DEPTS, sizeof(char));
 
     fgets(first_line, MAX_LINE_DEPTS, file);
 
-    int numDepartments = 1;
+    *numDepartmentsPtr = 1;
 
     for (int index = 0; index < strlen(first_line); ++index) {
-        if (first_line[index] == ',') ++numDepartments;
+        if (first_line[index] == ',') {
+            ++(*numDepartmentsPtr);
+        }
     }
 
-    DepartmentData deptData[numDepartments];
+    *deptDataPtr = (DepartmentData*)calloc(*numDepartmentsPtr, sizeof(DepartmentData));
 
     char* token = strtok(first_line, ",\n");
 
-    for (int index = 0; index < numDepartments; ++index) {
+    for (int index = 0; index < *numDepartmentsPtr; ++index) {
         if (token == NULL) printf("ERROR TOKEN");
-        deptData[index].name = token;
-        deptData[index].capacity = INITIAL_CAPACITY_EMP;
-        deptData[index].numEmployees = 0;
-        deptData[index].deptNum = index;
+        strcpy((*deptDataPtr)[index].name, token);
+        (*deptDataPtr)[index].capacity = INITIAL_CAPACITY_EMP;
+        (*deptDataPtr)[index].numEmployees = 0;
+        (*deptDataPtr)[index].deptNum = index;
 
         token = strtok( NULL , ",\n");
     }
 
-    initializeDepartments(&departments, numDepartments);
+    free(first_line);
+
+    initializeDepartments(departmentsPtr, *numDepartmentsPtr);
 
     Employee employee;
 
-    while (fscanf(file, "%[^,],%d,%f,%s", employee.name, &employee.num_employee, &employee.salary, &employee.dept) == 4) {
+    while (fscanf(file, " %[^,],%d,%f,%[^\n]", employee.name, &employee.num_employee, &employee.salary, &employee.dept) == 4) {
         int deptNum = -1;
-        for (int index = 0; index < numDepartments; ++index) {
-            if (strcmp(employee.dept, deptData[index].name)) {
+        for (int index = 0; index < *numDepartmentsPtr; ++index) {
+            if (strcmp(employee.dept, (*deptDataPtr)[index].name) == 0) {
                 deptNum = index;
                 break;
             }
         }
         
-        addEmployee(employee, departments+deptNum, &deptData[deptNum].numEmployees, &deptData[deptNum].capacity);
+        addEmployee(employee, (*departmentsPtr)+deptNum, &(*deptDataPtr)[deptNum].numEmployees, &(*deptDataPtr)[deptNum].capacity);
     }
 
     fclose(file);
-
-    return departments;
 }
 
 void printAvgSalary(Employee* employees, int numEmployees) {
@@ -252,3 +276,4 @@ void printMaxMinSalaries(Employee* employees, int numEmployees) {
     printf("\nEl empleado con el mayor salario es %s con numero %d y salario %.2f.\n", employees[maxpos].name, employees[maxpos].num_employee, employees[maxpos].salary);
 
 }
+

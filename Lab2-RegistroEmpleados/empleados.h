@@ -7,9 +7,18 @@
 #define STR(s) #s
 
 #define MAX_EMPLOYEE 100
-#define MAX_NAME 30
-#define INITIAL_CAPACITY_EMP 10
+#define MAX_NAME 40
+#define INITIAL_CAPACITY_EMP 5
 #define MAX_LINE_DEPTS 100
+#define MAX_NAME_DEPT 40
+
+typedef struct {
+    char name[MAX_NAME_DEPT];
+    int numEmployees;
+    int capacity;
+    int deptNum;
+} DepartmentData;
+
 
 typedef struct {
 
@@ -20,26 +29,27 @@ typedef struct {
 
 } Employee;
 
-typedef struct {
-    char* name;
-    int numEmployees;
-    int capacity;
-    int deptNum;
-} DepartmentData;
 
+void printHeader();
 
 void addEmployee(Employee employee, Employee **employees, int *numEmployees, int *actualCapacity);
 
 void viewEmployees(Employee *employees, int numEmployees);
 
+void viewDepartment(Employee** departments, DepartmentData* deptData, int numDept);
+
+void showAllEmployees(Employee** departments, DepartmentData* deptData, int numDepartments);
+
 void searchAndShowEmployee(Employee *employees, int numToShow, int numEmployees);
 
 void initializeEmployees(Employee **employees);
 
-void checkMemAlloc(Employee *employees);
+void checkMemAlloc(Employee* alloc);
 
-bool isValidEmployee(Employee* employees, Employee employee, int numEmployees, bool checkRepeated)
-;
+void checkMemAllocDept(Employee** alloc);
+
+bool isValidEmployee(Employee* employees, Employee employee, int numEmployees, bool checkRepeated);
+
 void checkCapacity(Employee** employees, int numEmployees, int* actualCapacity);
 
 void showEmployee(Employee employee);
@@ -52,9 +62,9 @@ void deleteEmployee(Employee *employees, int numToDelete, int *numEmployees);
 
 void freeEmployees(Employee* employees);
 
-void askForNameNumberAndOrSalary(Employee *employee, bool name, bool number, bool salary);
+void askForNameNumberAndOrSalaryAndOrDept(Employee *employee, bool name, bool number, bool salary, bool dept);
 
-Employee** getFromCSV(const char* filename);
+void getFromCSV(const char* filename, Employee*** departmentsPtr, DepartmentData** deptDataPtr, int* numDepartmentsPtr);
 
 void printAvgSalary(Employee* employees, int numEmployees);
 
