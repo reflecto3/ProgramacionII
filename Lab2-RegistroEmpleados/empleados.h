@@ -17,7 +17,7 @@ typedef struct {
     int numEmployees;
     int capacity;
     int deptNum;
-} DepartmentData;
+} DeptData;
 
 
 typedef struct {
@@ -29,6 +29,11 @@ typedef struct {
 
 } Employee;
 
+typedef struct {
+    int row;
+    int col;
+} IJndex;
+
 
 void printHeader();
 
@@ -36,11 +41,11 @@ void addEmployee(Employee employee, Employee **employees, int *numEmployees, int
 
 void viewEmployees(Employee *employees, int numEmployees);
 
-void viewDepartment(Employee** departments, DepartmentData* deptData, int numDept);
+void viewDepartment(Employee** departments, DeptData* deptData, int numDept);
 
-void showAllEmployees(Employee** departments, DepartmentData* deptData, int numDepartments);
+void showAllEmployees(Employee** departments, DeptData* deptData, int numDepartments);
 
-void searchAndShowEmployee(Employee *employees, int numToShow, int numEmployees);
+void searchAndShowEmployee(Employee** departments, int numToShow, DeptData* deptData , int numDepartments);
 
 void initializeEmployees(Employee **employees);
 
@@ -54,17 +59,17 @@ void checkCapacity(Employee** employees, int numEmployees, int* actualCapacity);
 
 void showEmployee(Employee employee);
 
-void modifyEmployee(Employee modified, Employee *employees, int numEmployees);
+void modifyEmployee(Employee modified, Employee** departments, DeptData* deptData, int numDepartments);
 
-int indexSearchEmployee(Employee *employees, int numEmployeeSearched, int numEmployees);
+IJndex indexSearchEmployee(Employee** departments, int numEmployeeSearched, DeptData* deptData, int numDepartments);
 
-void deleteEmployee(Employee *employees, int numToDelete, int *numEmployees);
+void deleteEmployee(Employee** departments, int numToDelete, DeptData* deptData, int numDepartments);
 
 void freeEmployees(Employee* employees);
 
-void askForNameNumberAndOrSalaryAndOrDept(Employee *employee, bool name, bool number, bool salary, bool dept);
+void askNameNumSalDept(Employee *employee, bool name, bool number, bool salary, bool dept);
 
-void getFromCSV(const char* filename, Employee*** departmentsPtr, DepartmentData** deptDataPtr, int* numDepartmentsPtr);
+void getFromCSV(const char* filename, Employee*** departmentsPtr, DeptData** deptDataPtr, int* numDepartmentsPtr);
 
 void printAvgSalary(Employee* employees, int numEmployees);
 
@@ -74,9 +79,11 @@ void initializeDepartments(Employee*** departments, int numDepartments);
 
 void freeDepartments(Employee** departments, int numDepartments);
 
-void freeData(DepartmentData* deptData);
+void freeData(DeptData* deptData);
 
-int numDept(DepartmentData* deptData, const char* deptName);
+int getNumDept(DeptData* deptData, const char* deptName, int numDepartments);
+
+void saveToCSV(const char* filename, Employee** departments, DeptData* deptData, int numDepartments);
 
 
 #endif

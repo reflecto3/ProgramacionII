@@ -45,6 +45,7 @@ void checkCapacity(Employee** employees, int numEmployees, int* actualCapacity) 
 
 }
 
+//hay que revisar para que sea valido para todos los departamentos
 bool isValidEmployee(Employee* employees, Employee employee, int numEmployees, bool checkRepeated) {
     if (checkRepeated) {
         for (int i = 0; i < numEmployees; ++i) {
@@ -72,7 +73,7 @@ void addEmployee(Employee employee, Employee **employees, int *numEmployees, int
     (*employees)[(*numEmployees)++] = employee;
 
     // showEmployee((*employees)[*numEmployees]);
-    // printf("\nEmpleado agregado.\n");
+    // 7printf("\nEmpleado agregado.\n");
 }
 
 void printHeader() {
@@ -92,14 +93,14 @@ void viewEmployees(Employee *employees, int numEmployees) {
     }
 }
 
-void showAllEmployees(Employee** departments, DepartmentData* deptData, int numDepartments) {
+void showAllEmployees(Employee** departments, DeptData* deptData, int numDepartments) {
     printHeader();
     for (int numDept = 0; numDept < numDepartments && numDept<5; ++numDept) {
         viewEmployees(departments[numDept], deptData[numDept].numEmployees);
     }
 }
 
-void viewDepartment(Employee** departments, DepartmentData* deptData, int numDept) {
+void viewDepartment(Employee** departments, DeptData* deptData, int numDept) {
     printHeader();
     viewEmployees(departments[numDept], deptData[numDept].numEmployees);
 }
@@ -108,72 +109,77 @@ void showEmployee(Employee employee) {
     printf("%-25s %-25d %-10.2f %-15s\n", employee.name, employee.num_employee, employee.salary, employee.dept);
 }
 
-int indexSearchEmployee(Employee *employees, int numEmployeeSearched, int numEmployees) {
-    for (int index = 0; index < numEmployees; ++index) {
-        if (employees[index].num_employee == numEmployeeSearched) {
-            return index;
+IJndex indexSearchEmployee(Employee** departments, int numEmployeeSearched, DeptData* deptData, int numDepartments) {
+    IJndex retval = {.row = -1, .col = -1};
+    for (int numDept = 0; numDept < numDepartments; ++numDept) {
+        for (int index = 0; index < deptData[numDept].numEmployees; ++index) {
+            if (departments[numDept][index].num_employee == numEmployeeSearched) {
+                retval.row = numDept;
+                retval.col = index;
+                return retval;
+            }
         }
     }
-    return -1;
+    return retval;
 }
 
-void searchAndShowEmployee(Employee *employees, int numToShow, int numEmployees) {
+void searchAndShowEmployee(Employee** departments, int numToShow, DeptData* deptData , int numDepartments) {
 
-    int position = indexSearchEmployee(employees, numToShow, numEmployees);
+    IJndex ijx = indexSearchEmployee(departments, numToShow, deptData, numDepartments);
 
-    if (position == -1) {
+    if (ijx.row == -1) {
         printf("Empleado no encontrado;");
         return;
     }
 
-    showEmployee(employees[position]);
+    showEmployee(departments[ijx.row][ijx.col]);
 }
 
-void modifyEmployee(Employee modified, Employee *employees, int numEmployees) {
+void modifyEmployee(Employee modified, Employee** departments, DeptData* deptData, int numDepartments) {
 
-    int position = indexSearchEmployee(employees, modified.num_employee, numEmployees);
+    IJndex ijx = indexSearchEmployee(departments, modified.num_employee, deptData, numDepartments);
 
-    if (position == -1) {
+    if (ijx.row == -1) {
         printf("Numero de empleado no encontrado.");
         return;
     }
 
-    if (!isValidEmployee(employees, modified, numEmployees, false)) {
+    if (!isValidEmployee(departments[ijx.row], modified, deptData[ijx.row].numEmployees, false)) {
         printf("Datos invalidos para la modificacion.");
         return;
     }
 
-    employees[position] = modified;
+    departments[ijx.row][ijx.col] = modified;
 
     printf("Empleado modificado exitosamente.\n");
 }
 
-void deleteEmployee(Employee *employees, int numToDelete, int *numEmployees) {
+void deleteEmployee(Employee** departments, int numToDelete, DeptData* deptData, int numDepartments) {
 
-    int position = indexSearchEmployee(employees, numToDelete, *numEmployees);
+    IJndex ijx = indexSearchEmployee(departments, numToDelete, deptData, numDepartments);
 
-    if (position == -1) {
+    if (ijx.row == -1) {
         printf("Empleado no encontrado;");
         return;
     }
 
     //hacer que cada puntero iniciando por el que apunta al empleado a eliminar apunte al siguiente
-    for (int i = position; i < *numEmployees-1; ++i) {
-        *(employees+i) = *(employees+i+1);
+    for (int i = ijx.col; i < deptData[ijx.row].numEmployees - 1; ++i) {
+        departments[ijx.row][i] = departments[ijx.row][i+1];
     }
 
     //y que el ultimo puntero de la lista apunte a un nuevo producto vacio
     Employee emptyEmployee = {.num_employee = -1, .name = "", .salary = -1};
-    *(employees+*numEmployees-1) = emptyEmployee;
+    departments[ijx.row][deptData[ijx.row].numEmployees-1] = emptyEmployee;
 
-    --(*numEmployees);
+    --deptData[ijx.row].numEmployees;
 }
 
 void freeEmployees(Employee* employees) {
     free(employees);
 }
 
-void freeData(DepartmentData* deptData) {
+void freeData(DeptData* deptData) {
     free(deptData);
 }
 
@@ -185,7 +191,7 @@ void freeDepartments(Employee** departments, int numDepartments) {
     free(departments);
 }
 
-void askForNameNumberAndOrSalaryAndOrDept(Employee *employee, bool name, bool number, bool salary, bool dept) {
+void askNameNumSalDept(Employee *employee, bool name, bool number, bool salary, bool dept) {
 
     if (name) {
         printf("\nIngrese el nombre del empleado: ");
@@ -199,6 +205,7 @@ void askForNameNumberAndOrSalaryAndOrDept(Employee *employee, bool name, bool nu
     if (salary) {
         printf("\nIngrese el salario del empleado: ");
         scanf("%f", &(*employee).salary);
+        getchar();
     }
     if (dept) {
     printf("\nIngrese el departamento del empleado: ");
@@ -206,7 +213,7 @@ void askForNameNumberAndOrSalaryAndOrDept(Employee *employee, bool name, bool nu
     }
 }
 
-void getFromCSV(const char* filename, Employee*** departmentsPtr, DepartmentData** deptDataPtr, int* numDepartmentsPtr) {
+void getFromCSV(const char* filename, Employee*** departmentsPtr, DeptData** deptDataPtr, int* numDepartmentsPtr) {
 
     FILE* file = fopen(filename, "r");
 
@@ -222,7 +229,7 @@ void getFromCSV(const char* filename, Employee*** departmentsPtr, DepartmentData
         }
     }
 
-    *deptDataPtr = (DepartmentData*)calloc(*numDepartmentsPtr, sizeof(DepartmentData));
+    *deptDataPtr = (DeptData*)calloc(*numDepartmentsPtr, sizeof(DeptData));
 
     char* token = strtok(first_line, ",\n");
 
@@ -281,9 +288,39 @@ void printMaxMinSalaries(Employee* employees, int numEmployees) {
 
 }
 
-int numDept(DepartmentData* deptData, const char* deptName, int numDepartments) {
+int getNumDept(DeptData* deptData, const char* deptName, int numDepartments) {
     for (int numDept = 0; numDept < numDepartments; ++numDept) {
-
+        if (strcmp(deptName, deptData[numDept].name) == 0) {
+            return numDept;
+        }
     }
+    return -1;
 }
 
+void saveToCSV(const char* filename, Employee** departments, DeptData* deptData, int numDepartments) {
+    int nameLen = strcspn(filename, ".");
+    char newName[nameLen+9];
+    strncpy(newName, filename, nameLen);
+    for (int index = 0; index<8; ++index){
+        newName[nameLen+index] = "-out.csv"[index];
+    }
+    newName[nameLen+8] = '\0';
+
+    FILE* newFile = fopen(newName, "w");
+
+    for (int numDept = 0; numDept < numDepartments-1; ++numDept) {
+        fprintf(newFile, "%s,", deptData[numDept].name);
+    }
+    fprintf(newFile, "%s\n", deptData[numDepartments-1].name);
+
+    Employee emp;
+
+    for (int numDept = 0; numDept < numDepartments; ++numDept) {
+        for (int index = 0; index < deptData[numDept].numEmployees; ++index) {
+            emp = departments[numDept][index];
+            fprintf(newFile, "%s,%d,%.2f,%s\n", emp.name, emp.num_employee, emp.salary, emp.dept);
+        }
+    }
+
+    fclose(newFile);
+}
