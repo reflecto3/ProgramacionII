@@ -173,6 +173,10 @@ void freeEmployees(Employee* employees) {
     free(employees);
 }
 
+void freeData(DepartmentData* deptData) {
+    free(deptData);
+}
+
 void freeDepartments(Employee** departments, int numDepartments) {
     for (int index = 0; index < numDepartments; ++index) {
         freeEmployees(departments[index]);
@@ -275,5 +279,11 @@ void printMaxMinSalaries(Employee* employees, int numEmployees) {
     printf("\nEl empleado con el menor salario es %s con numero %d y salario %.2f.\n", employees[minpos].name, employees[minpos].num_employee, employees[minpos].salary);
     printf("\nEl empleado con el mayor salario es %s con numero %d y salario %.2f.\n", employees[maxpos].name, employees[maxpos].num_employee, employees[maxpos].salary);
 
+}
+
+int numDept(DepartmentData* deptData, const char* deptName, int numDepartments) {
+    for (int numDept = 0; numDept < numDepartments; ++numDept) {
+
+    }
 }
 

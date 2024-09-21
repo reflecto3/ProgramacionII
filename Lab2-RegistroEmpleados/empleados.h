@@ -74,5 +74,9 @@ void initializeDepartments(Employee*** departments, int numDepartments);
 
 void freeDepartments(Employee** departments, int numDepartments);
 
+void freeData(DepartmentData* deptData);
+
+int numDept(DepartmentData* deptData, const char* deptName);
+
 
 #endif
